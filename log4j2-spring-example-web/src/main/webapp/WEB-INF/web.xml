@@ -1,0 +1,30 @@
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+         version="3.0"
+         metadata-complete="true">
+
+    <!--
+     Remove classpath scanning (from servlet 3.0) in order to speed jetty startup :
+     metadata-complete="true" above + empty absolute ordering below
+     -->
+    <absolute-ordering>
+      <!--
+        Empty absolute ordering is necessary to completely deactivate classpath scanning
+      -->
+    </absolute-ordering>
+
+    <display-name>Log4J 2 Spring Example</display-name>
+
+    <!-- All the Servlets and Filters are configured by this ServletContextListener : -->
+    <listener>
+        <listener-class>com.vepeter.example.log4j2spring.web.servlet.WebConfigurer</listener-class>
+    </listener>
+    
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+    <welcome-file>index.htm</welcome-file>
+    <welcome-file>index.xhtml</welcome-file>
+    <welcome-file>index.jsp</welcome-file>
+  </welcome-file-list>  
+</web-app>

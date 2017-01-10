@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Appenders>
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger.%method:%line - %msg%n" />
+        </Console>
+        <!-- <JDBC name="databaseAppender" tableName="dbo.application_log">
+            <DataSource jndiName="java:/comp/env/jdbc/LoggingDataSource" />
+            <ConnectionFactory class="com.vepeter.example.log4j2spring.logger.jdbc.ConnectionFactory" method="getDatabaseConnection" />
+            <Column name="eventDate" isEventTimestamp="true" />
+            <Column name="level" pattern="%level" />
+            <Column name="logger" pattern="%logger" />
+            <Column name="message" pattern="%message" />
+            <Column name="exception" pattern="%ex{full}" />
+        </JDBC> -->
+    </Appenders>
+    <Loggers>
+        <Root level="debug">
+            <AppenderRef ref="console" />
+        </Root>
+    </Loggers>
+</Configuration>
