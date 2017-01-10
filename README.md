@@ -9,8 +9,10 @@ The project could be used as an example of the following features:
 
 To test the project do the following requests in your browser:
 
-> http://localhost:8080/log4j2-spring-example-web/api/hello 
-> http://localhost:8080/log4j2-spring-example-web/api/hello/name1 
-> http://localhost:8080/log4j2-spring-example-web/api/hello/name2 
+```
+http://localhost:8080/log4j2-spring-example-web/api/hello 
+http://localhost:8080/log4j2-spring-example-web/api/hello/name1 
+http://localhost:8080/log4j2-spring-example-web/api/hello/name2 
 
-> http://localhost:8080/log4j2-spring-example-web/api/events
+http://localhost:8080/log4j2-spring-example-web/api/events
+```
