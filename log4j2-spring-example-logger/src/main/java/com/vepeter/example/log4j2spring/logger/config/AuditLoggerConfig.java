@@ -18,17 +18,29 @@ import org.apache.logging.log4j.core.config.AppenderRef;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import com.vepeter.example.log4j2spring.logger.model.DataSourceConnectionSource;
 
 @org.springframework.context.annotation.Configuration
+@PropertySource("classpath:logger-config.properties")
 public class AuditLoggerConfig {
 
     @Autowired
     private DataSource dataSource;
+
+    @Value("${example.appender.name}")
+    private String appenderName;
+
+    @Value("${example.appender.bufferSize}")
+    private String appenderBufferSize;
+
+    @Value("${example.appender.tableName}")
+    private String appendertableName;
 
     @PostConstruct
     public void initLogger() {
@@ -40,13 +52,13 @@ public class AuditLoggerConfig {
         ColumnConfig timestampColumn = ColumnConfig.createColumnConfig(config, "eventDate", "", "", TRUE.toString(),
                 TRUE.toString(), FALSE.toString());
         ColumnConfig[] columnConfigs = new ColumnConfig[] { nameColumn, timestampColumn };
-        Appender appender = JdbcAppender.createAppender("auditJdbcAppender", TRUE.toString(), null,
-                new DataSourceConnectionSource(dataSource), "0", "audit_event", columnConfigs);
+        Appender appender = JdbcAppender.createAppender(appenderName, TRUE.toString(), null,
+                new DataSourceConnectionSource(dataSource), appenderBufferSize, appendertableName, columnConfigs);
         appender.start();
         config.addAppender(appender);
-        AppenderRef ref = AppenderRef.createAppenderRef("auditJdbcAppender", null, null);
+        AppenderRef ref = AppenderRef.createAppenderRef(appenderName, null, null);
         AppenderRef[] appenderRefs = new AppenderRef[] { ref };
-        LoggerConfig loggerConfig = LoggerConfig.createLogger(false, Level.INFO,
+        LoggerConfig loggerConfig = LoggerConfig.createLogger(true, Level.INFO,
                 "com.vepeter.example.log4j2spring.logger.audit", FALSE.toString(), appenderRefs, null, config, null);
         loggerConfig.addAppender(appender, null, null);
         config.addLogger("com.vepeter.example.log4j2spring.logger.audit", loggerConfig);
