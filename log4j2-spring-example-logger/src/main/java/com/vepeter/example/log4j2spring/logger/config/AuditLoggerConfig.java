@@ -47,11 +47,15 @@ public class AuditLoggerConfig {
         final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
         final Configuration config = ctx.getConfiguration();
 
+        ColumnConfig sourceColumn = ColumnConfig.createColumnConfig(config, "source", "%c{1}", "", FALSE.toString(),
+                FALSE.toString(), FALSE.toString());
         ColumnConfig nameColumn = ColumnConfig.createColumnConfig(config, "name", "%message", "", FALSE.toString(),
+                FALSE.toString(), FALSE.toString());
+        ColumnConfig paramColumn = ColumnConfig.createColumnConfig(config, "param", "%mdc{param}", "", FALSE.toString(),
                 FALSE.toString(), FALSE.toString());
         ColumnConfig timestampColumn = ColumnConfig.createColumnConfig(config, "eventDate", "", "", TRUE.toString(),
                 TRUE.toString(), FALSE.toString());
-        ColumnConfig[] columnConfigs = new ColumnConfig[] { nameColumn, timestampColumn };
+        ColumnConfig[] columnConfigs = new ColumnConfig[] { sourceColumn, nameColumn, paramColumn, timestampColumn };
         Appender appender = JdbcAppender.createAppender(appenderName, TRUE.toString(), null,
                 new DataSourceConnectionSource(dataSource), appenderBufferSize, appendertableName, columnConfigs);
         appender.start();
@@ -68,7 +72,7 @@ public class AuditLoggerConfig {
     @PostConstruct
     public void initDatabase() throws SQLException {
         jdbcTemplate().execute(
-                "CREATE TABLE audit_event(id INTEGER IDENTITY PRIMARY KEY, name VARCHAR(120) NOT NULL, eventDate TIMESTAMP NOT NULL)");
+                "CREATE TABLE audit_event(id INTEGER IDENTITY PRIMARY KEY, source VARCHAR(120) NOT NULL, name VARCHAR(120) NOT NULL, param VARCHAR(120) NOT NULL, eventDate TIMESTAMP NOT NULL)");
     }
 
     @Bean

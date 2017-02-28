@@ -16,9 +16,9 @@ import com.vepeter.example.log4j2spring.web.model.HelloResponse;
 
 @Component
 @Produces("application/json")
-public class HelloResource {
+public class AnotherHelloResource {
 
-    private static Logger AUDIT_LOG = LogManager.getLogger("com.vepeter.example.log4j2spring.logger.audit.hello");
+    private static Logger AUDIT_LOG = LogManager.getLogger("com.vepeter.example.log4j2spring.logger.audit.anotherHello");
 
     @GET
     @Path("{name}")

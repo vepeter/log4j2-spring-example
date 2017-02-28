@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.vepeter.example.log4j2spring.web.rest.AnotherHelloResource;
 import com.vepeter.example.log4j2spring.web.rest.EventResource;
 import com.vepeter.example.log4j2spring.web.rest.HelloResource;
 
@@ -35,6 +36,11 @@ public class ApplicationConfiguration {
     @Bean
     public Server helloServiceRest(HelloResource helloResource) {
         return createEndpoint("/hello", helloResource);
+    }
+    
+    @Bean
+    public Server anotherHelloServiceRest(AnotherHelloResource anotherHelloResource) {
+        return createEndpoint("/another", anotherHelloResource);
     }
 
     @Bean

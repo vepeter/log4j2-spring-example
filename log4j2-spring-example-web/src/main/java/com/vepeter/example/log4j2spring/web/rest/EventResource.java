@@ -29,11 +29,12 @@ public class EventResource {
 
     @GET
     public List<AuditEvent> events() {
-        return jdbcTemplate.query("select name, eventDate from audit_event", new RowMapper<AuditEvent>() {
+        return jdbcTemplate.query("select source, name, param, eventDate from audit_event", new RowMapper<AuditEvent>() {
 
             @Override
             public AuditEvent mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return new AuditEvent(rs.getString("name"), new LocalDateTime(rs.getTimestamp("eventDate")));
+                return new AuditEvent(rs.getString("source"), rs.getString("name"), rs.getString("param"),
+                        new LocalDateTime(rs.getTimestamp("eventDate")));
             }
 
         });
