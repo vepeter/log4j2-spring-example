@@ -5,9 +5,9 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
-import org.apache.logging.log4j.core.appender.db.jdbc.ConnectionSource;
+import org.apache.logging.log4j.core.appender.db.jdbc.AbstractConnectionSource;
 
-public class DataSourceConnectionSource implements ConnectionSource {
+public class DataSourceConnectionSource extends AbstractConnectionSource {
     
     private DataSource dataSource;
 
