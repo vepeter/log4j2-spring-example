@@ -55,10 +55,15 @@ public class AuditLoggerConfig {
 				.setPattern("%mdc{param}").build();
 		ColumnMapping timestampColumnMapper = ColumnMapping.newBuilder().setConfiguration(config).setName("eventDate")
 				.setType(Timestamp.class).build();
-		Appender appender = JdbcAppender.newBuilder().setBufferSize(appenderBufferSize)
+		Appender appender = JdbcAppender.newBuilder()
+				.setBufferSize(appenderBufferSize)
 				.setColumnMappings(sourceColumnMapper, nameColumnMapper, paramColumnMapper, timestampColumnMapper)
-				.setConnectionSource(new AuditDataSourceConnectionSource(dataSource)).setTableName(appendertableName)
-				.setName(appenderName).setIgnoreExceptions(true).setFilter(null).build();
+				.setConnectionSource(new AuditDataSourceConnectionSource(dataSource))
+				.setTableName(appendertableName)
+				.setName(appenderName)
+				.setIgnoreExceptions(true)
+				.setFilter(null)
+				.build();
 		appender.start();
 		config.addAppender(appender);
 		AppenderRef ref = AppenderRef.createAppenderRef(appenderName, null, null);
@@ -72,9 +77,13 @@ public class AuditLoggerConfig {
 
 	@PostConstruct
 	public void initDatabase() throws SQLException {
-		jdbcTemplate().execute(String.format("CREATE TABLE %s(" + " id INTEGER IDENTITY PRIMARY KEY,"
-				+ " source VARCHAR(120) NOT NULL," + " name VARCHAR(120) NOT NULL," + " param VARCHAR(120) NOT NULL,"
-				+ " eventDate TIMESTAMP NOT NULL)", appendertableName));
+		jdbcTemplate().execute(
+				String.format("CREATE TABLE %s(" 
+							+ " id INTEGER IDENTITY PRIMARY KEY,"
+							+ " source VARCHAR(120) NOT NULL," 
+							+ " name VARCHAR(120) NOT NULL," 
+							+ " param VARCHAR(120) NOT NULL,"
+							+ " eventDate TIMESTAMP NOT NULL)", appendertableName));
 	}
 
 	@Bean
