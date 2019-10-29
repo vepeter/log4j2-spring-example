@@ -30,22 +30,22 @@ import com.vepeter.example.log4j2spring.logger.model.AuditDataSourceConnectionSo
 @PropertySource("classpath:logger-config.properties")
 public class AuditLoggerConfig {
 
-    @Autowired
-    private DataSource dataSource;
+	@Autowired
+	private DataSource dataSource;
 
-    @Value("${example.appender.name}")
-    private String appenderName;
+	@Value("${example.appender.name}")
+	private String appenderName;
 
-    @Value("${example.appender.bufferSize:0}")
-    private Integer appenderBufferSize;
+	@Value("${example.appender.bufferSize:0}")
+	private Integer appenderBufferSize;
 
-    @Value("${example.appender.tableName}")
-    private String appendertableName;
+	@Value("${example.appender.tableName}")
+	private String appendertableName;
 
-    @PostConstruct
-    public void initLogger() {
-        final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
-        final Configuration config = ctx.getConfiguration();
+	@PostConstruct
+	public void initLogger() {
+		final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+		final Configuration config = ctx.getConfiguration();
 
 		ColumnMapping sourceColumnMapper = ColumnMapping.newBuilder().setConfiguration(config).setName("source")
 				.setPattern("%c{1}").build();
@@ -55,51 +55,41 @@ public class AuditLoggerConfig {
 				.setPattern("%mdc{param}").build();
 		ColumnMapping timestampColumnMapper = ColumnMapping.newBuilder().setConfiguration(config).setName("eventDate")
 				.setType(Timestamp.class).build();
-		Appender appender = JdbcAppender.newBuilder()
-				.setBufferSize(appenderBufferSize)
+		Appender appender = JdbcAppender.newBuilder().setBufferSize(appenderBufferSize)
 				.setColumnMappings(sourceColumnMapper, nameColumnMapper, paramColumnMapper, timestampColumnMapper)
-				.setConnectionSource(new AuditDataSourceConnectionSource(dataSource))
-				.setTableName(appendertableName)
-				.setName(appenderName)
-				.setIgnoreExceptions(true)
-				.setFilter(null)
-				.build();
-        appender.start();
-        config.addAppender(appender);
-        AppenderRef ref = AppenderRef.createAppenderRef(appenderName, null, null);
-        AppenderRef[] appenderRefs = new AppenderRef[] { ref };
-        LoggerConfig loggerConfig = LoggerConfig.createLogger(true, Level.INFO,
-                "com.vepeter.example.log4j2spring.logger.audit", FALSE.toString(), appenderRefs, null, config, null);
-        loggerConfig.addAppender(appender, null, null);
-        config.addLogger("com.vepeter.example.log4j2spring.logger.audit", loggerConfig);
-        ctx.updateLoggers();
-    }
+				.setConnectionSource(new AuditDataSourceConnectionSource(dataSource)).setTableName(appendertableName)
+				.setName(appenderName).setIgnoreExceptions(true).setFilter(null).build();
+		appender.start();
+		config.addAppender(appender);
+		AppenderRef ref = AppenderRef.createAppenderRef(appenderName, null, null);
+		AppenderRef[] appenderRefs = new AppenderRef[] { ref };
+		LoggerConfig loggerConfig = LoggerConfig.createLogger(true, Level.INFO,
+				"com.vepeter.example.log4j2spring.logger.audit", FALSE.toString(), appenderRefs, null, config, null);
+		loggerConfig.addAppender(appender, null, null);
+		config.addLogger("com.vepeter.example.log4j2spring.logger.audit", loggerConfig);
+		ctx.updateLoggers();
+	}
 
-    @PostConstruct
-    public void initDatabase() throws SQLException {
-		jdbcTemplate().execute(String.format(
-				"CREATE TABLE %s("
-				+ "id INTEGER IDENTITY PRIMARY KEY, "
-				+ "source VARCHAR(120) NOT NULL, "
-				+ "name VARCHAR(120) NOT NULL, "
-				+ "param VARCHAR(120) NOT NULL, "
-				+ "eventDate TIMESTAMP NOT NULL)",
-				appendertableName));
-    }
+	@PostConstruct
+	public void initDatabase() throws SQLException {
+		jdbcTemplate().execute(String.format("CREATE TABLE %s(" + " id INTEGER IDENTITY PRIMARY KEY,"
+				+ " source VARCHAR(120) NOT NULL," + " name VARCHAR(120) NOT NULL," + " param VARCHAR(120) NOT NULL,"
+				+ " eventDate TIMESTAMP NOT NULL)", appendertableName));
+	}
 
-    @Bean
-    public DataSource dataSource() {
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName("org.hsqldb.jdbc.JDBCDriver");
-        dataSource.setUrl("jdbc:hsqldb:mem:log4j2-spring");
-        dataSource.setUsername("sa");
-        dataSource.setPassword("");
-        return dataSource;
-    }
+	@Bean
+	public DataSource dataSource() {
+		DriverManagerDataSource dataSource = new DriverManagerDataSource();
+		dataSource.setDriverClassName("org.hsqldb.jdbc.JDBCDriver");
+		dataSource.setUrl("jdbc:hsqldb:mem:log4j2-spring");
+		dataSource.setUsername("sa");
+		dataSource.setPassword("");
+		return dataSource;
+	}
 
-    @Bean
-    public JdbcTemplate jdbcTemplate() {
-        return new JdbcTemplate(dataSource());
-    }
+	@Bean
+	public JdbcTemplate jdbcTemplate() {
+		return new JdbcTemplate(dataSource());
+	}
 
 }
