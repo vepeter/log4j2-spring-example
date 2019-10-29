@@ -11,7 +11,7 @@ import org.springframework.context.annotation.ImportResource;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.vepeter.example.log4j2spring.web.rest.AnotherHelloResource;
 import com.vepeter.example.log4j2spring.web.rest.EventResource;
@@ -28,7 +28,7 @@ public class ApplicationConfiguration {
     @Bean
     public JacksonJsonProvider jsonProvider() {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JodaModule());
+        mapper.registerModule(new JavaTimeModule());
         mapper.setSerializationInclusion(Include.NON_EMPTY);
         return new JacksonJsonProvider(mapper);
     }

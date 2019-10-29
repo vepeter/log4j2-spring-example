@@ -7,11 +7,11 @@ import javax.sql.DataSource;
 
 import org.apache.logging.log4j.core.appender.db.jdbc.AbstractConnectionSource;
 
-public class DataSourceConnectionSource extends AbstractConnectionSource {
+public class AuditDataSourceConnectionSource extends AbstractConnectionSource {
     
     private DataSource dataSource;
 
-    public DataSourceConnectionSource(DataSource dataSource) {
+    public AuditDataSourceConnectionSource(DataSource dataSource) {
         super();
         this.dataSource = dataSource;
     }

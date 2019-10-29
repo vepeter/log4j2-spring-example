@@ -1,9 +1,9 @@
 package com.vepeter.example.log4j2spring.logger.config;
 
 import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
 
 import java.sql.SQLException;
+import java.sql.Timestamp;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
@@ -12,7 +12,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.appender.db.jdbc.ColumnConfig;
+import org.apache.logging.log4j.core.appender.db.ColumnMapping;
 import org.apache.logging.log4j.core.appender.db.jdbc.JdbcAppender;
 import org.apache.logging.log4j.core.config.AppenderRef;
 import org.apache.logging.log4j.core.config.Configuration;
@@ -24,7 +24,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
-import com.vepeter.example.log4j2spring.logger.model.DataSourceConnectionSource;
+import com.vepeter.example.log4j2spring.logger.model.AuditDataSourceConnectionSource;
 
 @org.springframework.context.annotation.Configuration
 @PropertySource("classpath:logger-config.properties")
@@ -36,8 +36,8 @@ public class AuditLoggerConfig {
     @Value("${example.appender.name}")
     private String appenderName;
 
-    @Value("${example.appender.bufferSize}")
-    private String appenderBufferSize;
+    @Value("${example.appender.bufferSize:0}")
+    private Integer appenderBufferSize;
 
     @Value("${example.appender.tableName}")
     private String appendertableName;
@@ -47,17 +47,23 @@ public class AuditLoggerConfig {
         final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
         final Configuration config = ctx.getConfiguration();
 
-        ColumnConfig sourceColumn = ColumnConfig.createColumnConfig(config, "source", "%c{1}", "", FALSE.toString(),
-                FALSE.toString(), FALSE.toString());
-        ColumnConfig nameColumn = ColumnConfig.createColumnConfig(config, "name", "%message", "", FALSE.toString(),
-                FALSE.toString(), FALSE.toString());
-        ColumnConfig paramColumn = ColumnConfig.createColumnConfig(config, "param", "%mdc{param}", "", FALSE.toString(),
-                FALSE.toString(), FALSE.toString());
-        ColumnConfig timestampColumn = ColumnConfig.createColumnConfig(config, "eventDate", "", "", TRUE.toString(),
-                TRUE.toString(), FALSE.toString());
-        ColumnConfig[] columnConfigs = new ColumnConfig[] { sourceColumn, nameColumn, paramColumn, timestampColumn };
-        Appender appender = JdbcAppender.createAppender(appenderName, TRUE.toString(), null,
-                new DataSourceConnectionSource(dataSource), appenderBufferSize, appendertableName, columnConfigs);
+		ColumnMapping sourceColumnMapper = ColumnMapping.newBuilder().setConfiguration(config).setName("source")
+				.setPattern("%c{1}").build();
+		ColumnMapping nameColumnMapper = ColumnMapping.newBuilder().setConfiguration(config).setName("name")
+				.setPattern("%message").build();
+		ColumnMapping paramColumnMapper = ColumnMapping.newBuilder().setConfiguration(config).setName("param")
+				.setPattern("%mdc{param}").build();
+		ColumnMapping timestampColumnMapper = ColumnMapping.newBuilder().setConfiguration(config).setName("eventDate")
+				.setType(Timestamp.class).build();
+		Appender appender = JdbcAppender.newBuilder()
+				.setBufferSize(appenderBufferSize)
+				.setColumnMappings(sourceColumnMapper, nameColumnMapper, paramColumnMapper, timestampColumnMapper)
+				.setConnectionSource(new AuditDataSourceConnectionSource(dataSource))
+				.setTableName(appendertableName)
+				.setName(appenderName)
+				.setIgnoreExceptions(true)
+				.setFilter(null)
+				.build();
         appender.start();
         config.addAppender(appender);
         AppenderRef ref = AppenderRef.createAppenderRef(appenderName, null, null);
@@ -71,8 +77,14 @@ public class AuditLoggerConfig {
 
     @PostConstruct
     public void initDatabase() throws SQLException {
-        jdbcTemplate().execute(
-                "CREATE TABLE audit_event(id INTEGER IDENTITY PRIMARY KEY, source VARCHAR(120) NOT NULL, name VARCHAR(120) NOT NULL, param VARCHAR(120) NOT NULL, eventDate TIMESTAMP NOT NULL)");
+		jdbcTemplate().execute(String.format(
+				"CREATE TABLE %s("
+				+ "id INTEGER IDENTITY PRIMARY KEY, "
+				+ "source VARCHAR(120) NOT NULL, "
+				+ "name VARCHAR(120) NOT NULL, "
+				+ "param VARCHAR(120) NOT NULL, "
+				+ "eventDate TIMESTAMP NOT NULL)",
+				appendertableName));
     }
 
     @Bean

@@ -1,6 +1,6 @@
 package com.vepeter.example.log4j2spring.logger.model;
 
-import org.joda.time.LocalDateTime;
+import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
